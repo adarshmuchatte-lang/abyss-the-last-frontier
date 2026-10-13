@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>ABYSS — Descend into the Unknown</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#E8F1F3;--cy:#59C9D8;--mid:#020B13;--navy:#061A2A;--sea:#0A3D56;--void:#010509;--dim:rgba(232,241,243,.62);--serif:'Cormorant Garamond',Georgia,serif;--sans:'Inter',system-ui,sans-serif;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+*,*:before,*:after{box-sizing:inherit}
+html{scroll-padding-top:env(safe-area-inset-top,0px);scroll-behavior:smooth;background:var(--mid)}
+body{margin:0;background:var(--mid);color:var(--ink);font:300 16px/1.65 var(--sans);overflow-x:hidden}
+canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+main,header,.hud{position:relative;z-index:2}
+.lbl{font:500 11px/1 var(--sans);letter-spacing:.24em;text-transform:uppercase;color:var(--cy)}
+h1,h2{font-family:var(--serif);font-weight:400;margin:0;line-height:1.02}
+nav{position:fixed;top:env(safe-area-inset-top,0px);left:0;right:0;z-index:5;display:flex;justify-content:space-between;align-items:center;padding:22px 4vw;gap:16px}
+.logo{font:500 14px var(--sans);letter-spacing:.5em;color:var(--ink);text-decoration:none}
+nav ul{display:flex;gap:clamp(14px,3vw,38px);list-style:none;margin:0;padding:0}
+nav a{color:var(--dim);text-decoration:none;font:400 11px var(--sans);letter-spacing:.2em;text-transform:uppercase;padding:6px 0;border-bottom:1px solid transparent;transition:color .4s,border-color .4s}
+nav a:hover,nav a.on{color:var(--ink);border-color:var(--cy)}
+#snd{background:none;border:1px solid rgba(232,241,243,.3);color:var(--ink);font:400 11px var(--sans);letter-spacing:.2em;padding:9px 14px;cursor:pointer;border-radius:2px;transition:border-color .3s}
+#snd:hover,#snd[aria-pressed=true]{border-color:var(--cy);color:var(--cy)}
+section{min-height:100svh;display:flex;flex-direction:column;justify-content:center;padding:14vh 4vw 14vh 4vw;max-width:1500px;margin:0 auto}
+#hero{align-items:center;text-align:center}
+#hero h1{font-size:clamp(64px,16vw,220px);letter-spacing:.12em;margin-right:-.12em}
+#hero .tag{font:300 clamp(12px,1.6vw,16px) var(--sans);letter-spacing:.5em;margin:18px 0 26px;text-transform:uppercase}
+#hero p{max-width:34ch;color:var(--dim);font-family:var(--serif);font-size:clamp(20px,2.4vw,28px);line-height:1.35;margin:0 0 40px}
+.btns{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn{font:500 12px var(--sans);letter-spacing:.22em;text-transform:uppercase;padding:17px 30px;border-radius:2px;cursor:pointer;text-decoration:none;transition:all .4s;border:1px solid var(--cy);color:var(--mid);background:var(--cy)}
+.btn:hover{background:transparent;color:var(--cy)}
+.btn.g{background:transparent;color:var(--ink);border-color:rgba(232,241,243,.35)}
+.btn.g:hover{border-color:var(--ink)}
+.scrollcue{position:absolute;bottom:calc(5vh + env(safe-area-inset-bottom,0px));left:50%;transform:translateX(-50%);text-align:center;color:var(--dim);font:400 10px var(--sans);letter-spacing:.3em}
+.scrollcue i{display:block;width:1px;height:46px;margin:12px auto 0;background:linear-gradient(var(--ink),transparent);animation:cue 2.4s ease-in-out infinite;transform-origin:top}
+@keyframes cue{0%{transform:scaleY(0)}50%{transform:scaleY(1)}100%{transform:scaleY(1);opacity:0}}
+.zone .rng{margin-bottom:26px}
+.zone h2{font-size:clamp(40px,7vw,104px);max-width:12ch;margin-bottom:28px}
+.zone p{max-width:42ch;color:var(--dim);margin:0}
+.zone{position:relative}
+.data{display:flex;gap:clamp(20px,4vw,56px);margin-top:44px;flex-wrap:wrap}
+.data div span{display:block;font:400 10px var(--sans);letter-spacing:.22em;color:var(--cy);margin-bottom:6px;text-transform:uppercase}
+.data div b{font:400 clamp(20px,2.4vw,28px) var(--serif)}
+.rv{opacity:0;transform:translateY(28px);transition:opacity 1.2s ease,transform 1.2s ease}
+.rv.in{opacity:1;transform:none}
+#discover h2,#facts h2{font-size:clamp(34px,5vw,72px);margin:14px 0 40px}
+.sp{border-top:1px solid rgba(232,241,243,.16)}
+.sp:last-child{border-bottom:1px solid rgba(232,241,243,.16)}
+.sp button{all:unset;box-sizing:border-box;width:100%;cursor:pointer;display:grid;grid-template-columns:3.2rem 1fr auto;gap:12px;align-items:baseline;padding:26px 0}
+.sp button:focus-visible{outline:1px solid var(--cy);outline-offset:4px}
+.sp .n{font:400 11px var(--sans);letter-spacing:.2em;color:var(--cy)}
+.sp .nm{font:400 clamp(26px,3.6vw,46px) var(--serif);transition:color .3s}
+.sp button:hover .nm{color:var(--cy)}
+.sp .nm em{display:block;font:italic 400 15px var(--serif);color:var(--dim);margin-top:2px}
+.sp .pl{font:300 24px var(--sans);transition:transform .4s}
+.sp[data-o=true] .pl{transform:rotate(45deg)}
+.sp .bd{display:grid;grid-template-rows:0fr;transition:grid-template-rows .6s ease}
+.sp[data-o=true] .bd{grid-template-rows:1fr}
+.sp .bd>div{overflow:hidden}
+.sp .in2{padding:0 0 30px 3.2rem;max-width:62ch}
+.sp .in2 p{margin:0 0 20px;color:var(--dim)}
+.bar{position:relative;height:3px;background:rgba(232,241,243,.14);margin:8px 0 6px}
+.bar i{position:absolute;top:0;bottom:0;background:var(--cy)}
+.bl{display:flex;justify-content:space-between;font:400 10px var(--sans);letter-spacing:.18em;color:var(--dim)}
+.facts{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(24px,4vw,64px)}
+.facts div{border-top:1px solid var(--cy);padding-top:22px}
+.facts b{display:block;font:400 clamp(38px,5vw,68px) var(--serif);line-height:1;margin-bottom:14px}
+.facts p{margin:0;color:var(--dim);font-size:15px}
+#end{align-items:center;text-align:center}
+#end h2{font-size:clamp(40px,8vw,120px);max-width:14ch}
+#end p{max-width:40ch;color:var(--dim);margin:26px 0 40px;font-family:var(--serif);font-size:clamp(19px,2.2vw,26px);line-height:1.35}
+footer{padding:48px 4vw calc(36px + env(safe-area-inset-bottom,0px));display:flex;justify-content:space-between;gap:24px;flex-wrap:wrap;border-top:1px solid rgba(232,241,243,.12);font-size:12px;color:var(--dim);position:relative;z-index:2}
+footer b{color:var(--ink);letter-spacing:.4em;font-weight:500}
+.hud{position:fixed;right:4vw;top:50%;transform:translateY(-50%);z-index:4;display:flex;gap:16px;align-items:stretch;text-align:right;pointer-events:none}
+.hud .rd{display:flex;flex-direction:column;justify-content:center;gap:14px}
+.hud .rd div span{display:block;font:400 9px var(--sans);letter-spacing:.22em;color:var(--cy);text-transform:uppercase}
+.hud .rd div b{font:400 15px var(--sans);font-variant-numeric:tabular-nums}
+.hud .big b{font:400 clamp(26px,3vw,38px) var(--serif)}
+.gauge{width:1px;height:38vh;background:rgba(232,241,243,.25);position:relative;align-self:center}
+.gauge i{position:absolute;left:-3px;width:7px;height:7px;border-radius:50%;background:var(--cy);transform:translateY(-50%)}
+.note{position:fixed;left:4vw;bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:4;font:400 9px var(--sans);letter-spacing:.2em;color:var(--dim);text-transform:uppercase;max-width:26ch}
+@media(max-width:860px){
+ nav ul{display:none}
+ .hud{top:auto;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:4vw;left:4vw;transform:none;justify-content:space-between;align-items:flex-end;text-align:left}
+ .hud .rd{flex-direction:row;flex-wrap:wrap;gap:16px}
+ .hud .rd div:not(.big):nth-child(n+4){display:none}
+ .gauge{display:none}.note{display:none}
+ .facts{grid-template-columns:1fr}
+ section{padding-top:12vh;padding-bottom:20vh}
+ .sp .in2{padding-left:0}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.rv{opacity:1;transform:none;transition:none}.scrollcue i{animation:none}.sp .bd{transition:none}}
+.hud,.note{transition:opacity .7s}
+#hero{align-items:flex-start;text-align:left;justify-content:flex-end;padding-bottom:20vh}
+#hero h1{font-size:clamp(72px,19vw,260px);letter-spacing:.03em;margin:0 0 0 -.04em;line-height:.85}
+#hero .tag{font-family:var(--serif);font-style:italic;font-size:clamp(22px,3vw,40px);letter-spacing:0;text-transform:none;margin:22px 0 18px;color:var(--cy)}
+#hero p{font-family:var(--sans);font-size:15px;max-width:36ch;line-height:1.7}
+#hero .btns{justify-content:flex-start}
+.scrollcue{left:4vw;transform:none;text-align:left}
+.zone h2{font-size:clamp(46px,9vw,148px);line-height:.92;max-width:11ch;letter-spacing:-.01em}
+.zone h2:first-line{font-style:italic}
+.zone p{border-left:1px solid var(--cy);padding-left:18px}
+#z2,#z4{align-items:flex-end;text-align:right}
+#z2 .data,#z4 .data{justify-content:flex-end}
+#z2 p,#z4 p{border-left:0;border-right:1px solid var(--cy);padding:0 18px 0 0}
+#end{align-items:flex-start;text-align:left;justify-content:flex-end;padding-bottom:12vh}
+#end h2{font-size:clamp(48px,10vw,160px);line-height:.9;max-width:12ch}
+footer{display:grid;grid-template-columns:1.4fr 1fr 1fr;gap:40px;padding:64px 4vw calc(40px + env(safe-area-inset-bottom,0px));background:var(--void);border-top:1px solid rgba(232,241,243,.1);z-index:6}
+footer h3{font:500 10px var(--sans);letter-spacing:.24em;color:var(--cy);margin:0 0 16px;text-transform:uppercase}
+footer a{display:block;color:var(--dim);text-decoration:none;padding:3px 0}footer a:hover{color:var(--ink)}
+footer .wm{font:400 34px var(--serif);letter-spacing:.3em;color:var(--ink);margin-bottom:12px}
+footer .fb{grid-column:1/-1;border-top:1px solid rgba(232,241,243,.08);padding-top:20px;font-size:11px}
+@media(max-width:860px){footer{grid-template-columns:1fr 1fr}footer>div:first-child{grid-column:1/-1}}
+#g{position:fixed;inset:0;width:100%;height:100%;z-index:0}
+.tight{min-height:auto;padding-top:12vh;padding-bottom:12vh}
+.hd{font-size:clamp(34px,5vw,72px);margin:14px 0 36px}
+.pr{max-width:58ch;color:var(--dim);margin:0 0 18px}
+.tl>div{display:grid;grid-template-columns:minmax(6.5rem,13rem) 1fr;gap:24px;padding:22px 0;border-top:1px solid rgba(232,241,243,.16)}
+.tl>div:last-child{border-bottom:1px solid rgba(232,241,243,.16)}
+.tl b{font:400 clamp(22px,2.6vw,32px) var(--serif);color:var(--cy)}
+.tl p{margin:0;color:var(--dim);max-width:62ch}
+.facts.c2{grid-template-columns:repeat(2,1fr);row-gap:44px}.facts+.facts{margin-top:56px}
+.facts .lbl{display:block;margin-bottom:12px}
+@media(max-width:860px){.facts.c2{grid-template-columns:1fr}.tl>div{grid-template-columns:1fr;gap:6px}}
+</style></head>
+<body>
+<canvas id="g" aria-hidden="true"></canvas><canvas id="c" aria-hidden="true"></canvas>
+<nav><a class="logo" href="#hero" aria-label="ABYSS home">ABYSS</a>
+<ul><li><a href="#z1" data-z="1 2 3 4">Explore</a></li><li><a href="#discover">Discover</a></li><li><a href="#facts">The Science</a></li><li><a href="#end">About</a></li></ul>
+<button id="snd" aria-pressed="false" aria-label="Toggle ambient underwater sound">SOUND OFF</button></nav>
+
+<aside class="hud" aria-label="Illustrative depth readings">
+<div class="rd"><div class="big"><span>Current depth</span><b id="d">0000 M</b></div><div><span>Zone</span><b id="zn">Sunlit Surface</b></div><div><span>Temperature</span><b id="tp">24 °C</b></div><div><span>Pressure</span><b id="pr">1 atm</b></div><div><span>Light</span><b id="lt">Abundant</b></div></div>
+<div class="gauge"><i id="gm" style="top:0"></i></div></aside>
+<div class="note">Illustrative readings modelled from depth, not live sensor data</div>
+
+<main>
+<section id="hero"><div class="lbl rv">Expedition log · Depth 0 m</div>
+<h1 class="rv">ABYSS</h1><div class="tag rv">Descend into the unknown.</div>
+<p class="rv">An expedition into the world’s last unexplored frontier.</p>
+<div class="btns rv"><a class="btn" href="#z1" id="go">Begin descent</a><a class="btn g" href="#discover">Explore the ocean</a></div>
+<div class="scrollcue" aria-hidden="true">SCROLL TO DESCEND<i></i></div></section>
+
+<section class="zone" id="z1" data-z="1" data-a="0" data-b="200"><div class="lbl rng rv">Zone 01 · 0–200 m · Sunlit zone</div><h2 class="rv">Where the light still reaches</h2><p class="rv">Sunlight drives nearly all life here. Photosynthesis feeds plankton, and plankton feed everything above and below.</p>
+<div class="data rv"><div><span>Temperature</span><b>≈ 24 °C</b></div><div><span>Light</span><b>Abundant</b></div><div><span>Pressure</span><b>1–21 atm</b></div></div></section>
+
+<section class="zone" id="z2" data-z="2" data-a="200" data-b="1000"><div class="lbl rng rv">Zone 02 · 200–1,000 m · Twilight</div><h2 class="rv">The world between light and darkness</h2><p class="rv">Blue light fades to almost nothing. Many animals here migrate upward at night to feed, then sink back at dawn.</p>
+<div class="data rv"><div><span>Temperature</span><b>≈ 4–10 °C</b></div><div><span>Light</span><b>Fading</b></div><div><span>Pressure</span><b>21–101 atm</b></div></div></section>
+
+<section class="zone" id="z3" data-z="3" data-a="1000" data-b="4000"><div class="lbl rng rv">Zone 03 · 1,000–4,000 m · Midnight</div><h2 class="rv">Where sunlight never arrives</h2><p class="rv">The only light is made by living things. Food drifts down as marine snow, and animals wait in the dark for it.</p>
+<div class="data rv"><div><span>Temperature</span><b>≈ 2–4 °C</b></div><div><span>Light</span><b>None</b></div><div><span>Pressure</span><b>101–401 atm</b></div></div></section>
+
+<section class="zone" id="z4" data-z="4" data-a="4000" data-b="6000"><div class="lbl rng rv">Zone 04 · 4,000–6,000 m · Abyssal</div><h2 class="rv">The last frontier</h2><p class="rv">Near-freezing, crushing and almost entirely dark. Few humans have ever seen this place directly.</p>
+<div class="data rv"><div><span>Temperature</span><b>≈ 1–3 °C</b></div><div><span>Light</span><b>Bioluminescence only</b></div><div><span>Pressure</span><b>401–601 atm</b></div></div></section>
+
+<section class="zone" id="z5" data-z="5" data-a="6000" data-b="10935"><div class="lbl rng rv">Zone 05 · 6,000–10,935 m · Hadal</div><h2 class="rv">Deeper than mountains are tall</h2><p class="rv">Named for Hades, the hadal zone is mostly ocean trenches. Pressure here is over a thousand times that at the surface, yet life persists: amphipods, sea cucumbers and snailfish have all been filmed in the trenches.</p>
+<div class="data rv"><div><span>Temperature</span><b>≈ 1–2 °C</b></div><div><span>Light</span><b>None</b></div><div><span>Pressure</span><b>601–1,094 atm</b></div></div></section>
+
+<section class="tight" id="history"><div class="lbl rv">Expedition log</div><h2 class="hd rv">A short history of going down</h2><div class="tl">
+<div class="rv"><b>1960</b><p>The bathyscaphe Trieste carries Jacques Piccard and Don Walsh to the bottom of Challenger Deep, roughly 10,900 m down.</p></div>
+<div class="rv"><b>1977</b><p>The submersible Alvin helps reveal hydrothermal vent communities near the Galápagos, life powered by chemistry, not sunlight.</p></div>
+<div class="rv"><b>1985</b><p>A French–American team led by Robert Ballard locates the wreck of the Titanic at about 3,800 m.</p></div>
+<div class="rv"><b>2012</b><p>James Cameron makes the first solo descent to Challenger Deep in the submersible Deepsea Challenger.</p></div>
+<div class="rv"><b>2022</b><p>Shackleton’s ship Endurance, lost in 1915, is found in the Weddell Sea at about 3,000 m.</p></div></div></section>
+
+<section class="tight" id="wrecks"><div class="lbl rv">What the deep keeps</div><h2 class="hd rv">Ships beneath the surface</h2><div class="facts c2">
+<div class="rv"><span class="lbl">RMS Titanic</span><b>≈ 3,800 m</b><p>Sunk in 1912 in the North Atlantic. Iron-eating bacteria and “rusticles” are slowly consuming the steel.</p></div>
+<div class="rv"><span class="lbl">Endurance</span><b>≈ 3,008 m</b><p>Crushed by sea ice in 1915 and found in 2022. Cold water has left it remarkably well preserved.</p></div>
+<div class="rv"><span class="lbl">USS Samuel B. Roberts</span><b>≈ 6,895 m</b><p>A US Navy destroyer escort sunk in 1944, reported as the deepest shipwreck ever surveyed.</p></div>
+<div class="rv"><span class="lbl">Wrecks as habitat</span><b>New reefs</b><p>Sunken ships, like whale carcasses and fallen wood, become islands of food and shelter for deep-sea animals.</p></div></div></section>
+
+<section class="tight" id="vents"><div class="lbl rv">Hydrothermal vents</div><h2 class="hd rv">Life without sunlight</h2>
+<p class="pr rv">Where seawater seeps through hot rock, it returns to the seafloor loaded with minerals. At “black smokers” these fluids can reach around 350–400 °C. Bacteria turn chemicals such as hydrogen sulfide into energy by chemosynthesis, feeding tube worms, clams and shrimp.</p>
+<p class="pr rv">Elsewhere, food arrives as marine snow: a steady fall of dead plankton and waste from sunlit waters. It can take weeks to sink to the deep seafloor, and it carries carbon out of the atmosphere’s reach.</p></section>
+
+<section class="tight" id="tech"><div class="lbl rv">How we reach it</div><h2 class="hd rv">Instruments of exploration</h2><div class="tl">
+<div class="rv"><b>Crewed submersibles</b><p>Alvin, operated by Woods Hole Oceanographic Institution, is certified to about 6,500 m and carries three people.</p></div>
+<div class="rv"><b>ROVs</b><p>Remotely operated vehicles are tethered to a ship by cable, streaming live video and sampling with robotic arms.</p></div>
+<div class="rv"><b>AUVs</b><p>Autonomous underwater vehicles follow programmed routes without a tether, mapping the seabed with sonar.</p></div>
+<div class="rv"><b>Multibeam sonar</b><p>Ships time sound pulses bounced off the bottom to map the seafloor. Most depth maps are made this way.</p></div></div></section>
+
+<section id="discover" data-z="4" data-a="6000" data-b="6000"><div class="lbl rv">Discover · Deep-sea life</div><h2 class="rv">Four residents of the dark</h2><div id="sp"></div></section>
+
+<section id="facts" data-z="4" data-a="6000" data-b="6000"><div class="lbl rv">The science</div><h2 class="rv">The ocean is not empty.</h2>
+<div class="facts"><div class="rv"><b>≈ 10,935 m</b><p>Challenger Deep in the Mariana Trench is the deepest known point, deeper than Mount Everest is tall.</p></div>
+<div class="rv"><b>Most of it</b><p>Bioluminescence is widespread in open-ocean animals; many deep-sea creatures make their own light.</p></div>
+<div class="rv"><b>≈ 1 atm / 10 m</b><p>Pressure rises by roughly one atmosphere for every 10 metres of seawater, on top of the surface atmosphere.</p></div></div>
+<div class="facts"><div class="rv"><b>≈ 71%</b><p>of Earth’s surface is covered by ocean.</p></div><div class="rv"><b>≈ 3,700 m</b><p>is the average depth of the global ocean.</p></div><div class="rv"><b>1977</b><p>was when vent ecosystems were first observed, upending ideas about what life needs.</p></div></div></section>
+
+<section class="tight" id="faq"><div class="lbl rv">Questions</div><h2 class="hd rv">What people ask about the deep</h2><div id="fq"></div></section>
+
+<section id="end" data-z="4" data-a="6000" data-b="6000"><h2 class="rv">You have reached the unknown.</h2><p class="rv">More than 80% of the ocean remains unmapped, unobserved, or unexplored in detail.</p><button class="btn rv" id="up">Return to surface</button></section>
+</main>
+<footer><div><div class="wm">ABYSS</div>AN INTERACTIVE OCEAN EXPLORATION EXPERIENCE</div><div><h3>Navigate</h3><a href="#hero">Surface</a><a href="#z1">Explore</a><a href="#discover">Discover</a><a href="#facts">The Science</a></div><div><h3>Credits</h3>Concept, design &amp; code<br>Species notes from published marine biology</div><div class="fb">Depth, temperature and pressure readings are illustrative, not live sensor data.</div></footer>
+
+<script>
+(function(){
+var RM=matchMedia('(prefers-reduced-motion:reduce)').matches,$=function(i){return document.getElementById(i)};
+var SP=[["Giant squid","Architeuthis dux",300,1000,"Its eyes can reach roughly 27 cm across, among the largest in the animal kingdom, helping it spot the faint glow stirred up by sperm whales."],
+["Dumbo octopus","Grimpoteuthis spp.",300,7000,"It swims by flapping ear-like fins and swallows prey whole. Members of the genus have been filmed at some of the greatest depths of any octopus."],
+["Humpback anglerfish","Melanocetus johnsonii",200,2000,"The female carries a lure containing bioluminescent bacteria to attract prey; males are dramatically smaller than females."],
+["Giant isopod","Bathynomus giganteus",170,2500,"A relative of woodlice that can exceed 30 cm. It scavenges fallen carcasses and can survive long periods between meals."],["Vampire squid","Vampyroteuthis infernalis",600,1200,"Neither a true squid nor an octopus, it lives in low-oxygen water and can release glowing mucus instead of ink."],["Barreleye","Macropinna microstoma",600,800,"Its head is a transparent dome, and its tubular eyes can rotate inside it to look up toward faint light."],["Fangtooth","Anoplogaster cornuta",500,5000,"Its teeth are among the largest relative to body size of any fish; it has to leave its mouth open because they interlock."],["Gulper eel","Eurypharynx pelecanoides",500,3000,"A huge hinged mouth lets it swallow prey large for its size, and a glowing organ sits at the tip of its tail."]];
+var MAX=7000,h="";
+SP.forEach(function(s,i){var l=s[2]/MAX*100,w=(s[3]-s[2])/MAX*100;
+h+='<div class="sp rv" data-o="false"><button aria-expanded="false" aria-controls="b'+i+'"><span class="n">0'+(i+1)+'</span><span class="nm">'+s[0]+'<em>'+s[1]+'</em></span><span class="pl" aria-hidden="true">+</span></button><div class="bd" id="b'+i+'"><div><div class="in2"><p>'+s[4]+'</p><div class="lbl">Habitat depth · '+s[2].toLocaleString()+'–'+s[3].toLocaleString()+' m</div><div class="bar"><i style="left:'+l+'%;width:'+w+'%"></i></div><div class="bl"><span>0 M</span><span>7,000 M</span></div></div></div></div></div>'});
+$('sp').innerHTML=h;
+var FQ=[["Why is the deep sea dark?","Water absorbs sunlight quickly, red first and blue last. Below roughly 1,000 m there is essentially no sunlight left."],["Why doesn’t pressure crush deep-sea animals?","Their bodies are mostly water and have few gas-filled spaces, so they equalise with the surroundings. Many also hold molecules such as TMAO that help proteins work under pressure."],["How cold is it down there?","Typically 2–4 °C. Seawater only freezes near −2 °C, so the deep ocean stays liquid, except near hot vents."],["How much of the ocean has been explored?","Only a minority of the seafloor has been mapped at high resolution, and far less has been seen directly. Efforts such as Seabed 2030 are working to close the gap."]],f="";
+FQ.forEach(function(q,i){f+='<div class="sp rv" data-o="false"><button aria-expanded="false" aria-controls="q'+i+'"><span class="n">Q'+(i+1)+'</span><span class="nm" style="font-size:clamp(20px,2.4vw,30px)">'+q[0]+'</span><span class="pl" aria-hidden="true">+</span></button><div class="bd" id="q'+i+'"><div><div class="in2"><p>'+q[1]+'</p></div></div></div></div>'});
+$('fq').innerHTML=f;
+document.querySelectorAll('.sp button').forEach(function(b){b.onclick=function(){var p=b.parentNode,o=p.dataset.o!=='true';p.dataset.o=o;b.setAttribute('aria-expanded',o)}});
+
+var io=new IntersectionObserver(function(e){e.forEach(function(x){if(x.isIntersecting){x.target.classList.add('in');io.unobserve(x.target)}})},{threshold:.15});
+document.querySelectorAll('.rv').forEach(function(e){RM?e.classList.add('in'):io.observe(e)});
+
+$('up').onclick=function(){scrollTo({top:0,behavior:RM?'auto':'smooth'})};
+
+/* depth from scroll: piecewise per zone section */
+var Z=[].slice.call(document.querySelectorAll('.zone')),depth=0,tgt=0,H=innerHeight;
+function calc(){var y=scrollY+H*.5,hero=$('hero'),d=0;
+ if(y<Z[0].offsetTop){d=0}else{d=10935;for(var i=0;i<Z.length;i++){var z=Z[i],t=z.offsetTop,b=t+z.offsetHeight;if(y>=t&&y<b){var a=+z.dataset.a,e=+z.dataset.b;d=a+(e-a)*((y-t)/(b-t));break}}}
+ tgt=d}
+var names=['Sunlit Surface','Sunlit Zone','Twilight Zone','Midnight Zone','Abyssal Zone','Hadal Zone'];
+function temp(d){return d<200?24-d/200*8:d<1000?16-(d-200)/800*10:d<4000?6-(d-1000)/3000*4:2-(d-4000)/2000}
+function ui(){var er=$('end').getBoundingClientRect(),hv=er.top<H*.5?0:1;document.querySelector('.hud').style.opacity=hv;document.querySelector('.note').style.opacity=hv;var d=depth,zi=d<1?0:d<200?1:d<1000?2:d<4000?3:d<6000?4:5;
+ $('d').textContent=('0000'+Math.round(d)).slice(-4)+' M';$('zn').textContent=names[zi];
+ $('tp').textContent=Math.max(1,Math.round(temp(d)))+' °C';$('pr').textContent=Math.round(1+d/10)+' atm';
+ $('lt').textContent=d<200?'Abundant':d<1000?'Fading':d<4000?'None':'Bioluminescence';
+ $('gm').style.top=(d/10935*100)+'%';
+ document.querySelectorAll('nav a[data-z]').forEach(function(a){a.classList.toggle('on',d>0&&d<10935)});
+ var ids=['hero','discover','facts','end'],nav=document.querySelectorAll('nav a:not([data-z])');
+ nav.forEach(function(a){var s=document.querySelector(a.getAttribute('href')),r=s.getBoundingClientRect();a.classList.toggle('on',r.top<H*.5&&r.bottom>H*.5)})}
+
+/* canvas */
+var c=$('c'),x=c.getContext('2d'),W,Hh,dpr,mob=innerWidth<860,P=[],J=[];
+/* WebGL water: caustics, god rays, murk, depth colour; 2D canvas is the overlay */
+var gc=$('g'),gl=null,uR,uT,uD,uS;
+try{gl=gc.getContext('webgl',{antialias:false,alpha:false});
+ if(gl){var sh=function(t,src){var o=gl.createShader(t);gl.shaderSource(o,src);gl.compileShader(o);if(!gl.getShaderParameter(o,gl.COMPILE_STATUS))throw 0;return o},pg=gl.createProgram();
+ gl.attachShader(pg,sh(gl.VERTEX_SHADER,'attribute vec2 a;void main(){gl_Position=vec4(a,0.,1.);}'));
+ gl.attachShader(pg,sh(gl.FRAGMENT_SHADER,`precision highp float;uniform vec2 R;uniform float T,D,S;
+float h(vec2 p){return fract(sin(dot(p,vec2(127.1,311.7)))*43758.5453);}
+float n(vec2 p){vec2 i=floor(p),f=fract(p);f=f*f*(3.-2.*f);return mix(mix(h(i),h(i+vec2(1.,0.)),f.x),mix(h(i+vec2(0.,1.)),h(i+vec2(1.,1.)),f.x),f.y);}
+float fbm(vec2 p){float v=0.,a=.5;for(int i=0;i<5;i++){v+=a*n(p);p=p*2.03+vec2(7.1,3.7);a*=.5;}return v;}
+void main(){vec2 u=gl_FragCoord.xy/R;float v=1.-u.y,as=R.x/R.y,L=exp(-D/420.);
+vec3 col=mix(vec3(.004,.02,.035),vec3(.05,.45,.6),L);col*=1.-.6*v*(1.-.5*L);
+float sx=(u.x-.5)*as+v*.35,r=n(vec2(sx*6.+T*.04,T*.06))*.6+n(vec2(sx*15.-T*.03,4.))*.4;
+col+=vec3(.5,.88,1.)*pow(r,2.2)*pow(1.-v,1.6)*exp(-D/700.)*.9;
+vec2 p=vec2(u.x*as,v)*5.;float c=1.-abs(fbm(p+T*.06)-fbm(p*1.4-T*.05+3.))*2.6;
+col+=vec3(.6,.95,1.)*pow(clamp(c,0.,1.),5.)*exp(-D/150.)*(1.-v)*.35;
+float fg=fbm(vec2(u.x*as*2.,v*1.5+S*.0004)+T*.015);
+col+=mix(vec3(.02,.1,.14),vec3(0.,.05,.09),1.-L)*fg*(.5+.5*L);
+col+=vec3(.02,.12,.2)*smoothstep(.55,.85,fbm(vec2(u.x*as*3.+T*.01,v*2.-S*.0003)+9.))*(1.-L)*smoothstep(700.,1500.,D)*.7;
+col+=vec3(.75,.97,1.)*exp(-v*9.)*clamp(1.-D/140.,0.,1.)*(.5+.5*n(vec2(u.x*22.+T*.4,T*.3)));
+col*=.45+.55*smoothstep(1.05,.25,length((u-.5)*vec2(as*.9,1.)));
+col+=(h(gl_FragCoord.xy+T)-.5)*.02;gl_FragColor=vec4(col,1.);}`));
+ gl.linkProgram(pg);if(!gl.getProgramParameter(pg,gl.LINK_STATUS))throw 0;gl.useProgram(pg);
+ var bf=gl.createBuffer();gl.bindBuffer(gl.ARRAY_BUFFER,bf);gl.bufferData(gl.ARRAY_BUFFER,new Float32Array([-1,-1,3,-1,-1,3]),gl.STATIC_DRAW);
+ var al=gl.getAttribLocation(pg,'a');gl.enableVertexAttribArray(al);gl.vertexAttribPointer(al,2,gl.FLOAT,false,0,0);
+ uR=gl.getUniformLocation(pg,'R');uT=gl.getUniformLocation(pg,'T');uD=gl.getUniformLocation(pg,'D');uS=gl.getUniformLocation(pg,'S')}}catch(e){gl=null}
+function gs(){if(!gl)return;var q=Math.min(dpr,1.25);gc.width=W*q;gc.height=Hh*q;gl.viewport(0,0,gc.width,gc.height)}
+function drawGL(){gl.uniform2f(uR,gc.width,gc.height);gl.uniform1f(uT,T/1000);gl.uniform1f(uD,depth);gl.uniform1f(uS,scrollY);gl.drawArrays(gl.TRIANGLES,0,3)}
+function size(){dpr=Math.min(devicePixelRatio||1,2);W=innerWidth;Hh=innerHeight;H=Hh;gs();c.width=W*dpr;c.height=Hh*dpr;x.setTransform(dpr,0,0,dpr,0,0);mob=W<860}
+size();addEventListener('resize',function(){size();calc()});
+for(var i=0;i<(mob?70:140);i++)P.push({x:Math.random(),y:Math.random(),z:.2+Math.random()*.8,s:Math.random()*6});
+for(i=0;i<(mob?4:8);i++)J.push({x:Math.random(),y:Math.random(),z:.3+Math.random()*.7,s:.7+Math.random()*.6,p:Math.random()*6,v:.00004+Math.random()*.00006});
+var stops=[[0,[15,110,150],[8,60,90]],[200,[10,61,86],[6,26,42]],[1000,[6,26,42],[2,11,19]],[4000,[2,11,19],[1,5,9]],[6000,[1,5,9],[1,3,6]],[11000,[1,3,6],[0,1,3]]];
+function lerp(a,b,t){return a+(b-a)*t}
+function col(d){for(var i=1;i<stops.length;i++){if(d<=stops[i][0]){var a=stops[i-1],b=stops[i],t=(d-a[0])/(b[0]-a[0]);return[0,1].map(function(k){return a[k+1].map(function(v,j){return Math.round(lerp(v,b[k+1][j],t))}).join(',')})}}var l=stops[5];return[l[1].join(','),l[2].join(',')]}
+var T=0,last=performance.now();
+function frame(now){var dt=RM?0:Math.min(50,now-last);last=now;T+=dt;
+ depth+=(tgt-depth)*(RM?1:.08);if(Math.abs(tgt-depth)<.3)depth=tgt;
+ var cl=col(depth),g=x.createLinearGradient(0,0,0,Hh);g.addColorStop(0,'rgb('+cl[0]+')');g.addColorStop(1,'rgb('+cl[1]+')');if(gl){x.clearRect(0,0,W,Hh);drawGL()}else{x.fillStyle=g;x.fillRect(0,0,W,Hh)}
+ /* light rays */
+ var ra=Math.max(0,1-depth/1100);
+ if(ra>0.01&&!gl){x.save();x.globalCompositeOperation='lighter';
+  for(var r=0;r<(mob?5:9);r++){var bx=W*(r/(mob?5:9))+Math.sin(T*.0002+r)*60,wd=60+r%3*50,al=ra*(.05+.03*Math.sin(T*.0006+r*2));
+   var rg=x.createLinearGradient(0,0,0,Hh*.9);rg.addColorStop(0,'rgba(180,235,245,'+al+')');rg.addColorStop(1,'rgba(180,235,245,0)');x.fillStyle=rg;
+   x.beginPath();x.moveTo(bx,0);x.lineTo(bx+wd,0);x.lineTo(bx+wd-260,Hh*.9);x.lineTo(bx-260-wd*.4,Hh*.9);x.fill()}
+  x.restore()}
+ /* surface shimmer */
+ if(depth<250&&!gl){var sa=1-depth/250;x.fillStyle='rgba(220,250,255,'+(.06*sa)+')';for(i=0;i<8;i++){x.fillRect(0,(8+i*10+Math.sin(T*.001+i)*4)-depth*.6,W,1.5)}}
+ /* particles / marine snow */
+ var pa=.25+Math.min(.45,depth/3000),sc=scrollY;
+ x.fillStyle='rgba(232,241,243,'+pa+')';
+ P.forEach(function(p){p.y+=RM?0:(.00002+p.z*.00004)*dt;p.x+=RM?0:Math.sin(T*.0004+p.s)*.00004*dt;if(p.y>1.05)p.y=-.05;
+  var px=(p.x%1)*W,py=((p.y*Hh+sc*p.z*.25)%(Hh+20)+Hh+20)%(Hh+20)-10,s=.6+p.z*1.8;x.globalAlpha=p.z;x.beginPath();x.arc(px,py,s,0,6.28);x.fill()});x.globalAlpha=1;
+ /* jellyfish: layered, additive, depth-graded */
+ var ja=depth<500?0:Math.min(1,(depth-500)/1500);
+ if(ja>0){x.save();x.globalCompositeOperation='lighter';
+ J.slice().sort(function(a,b){return a.z-b.z}).forEach(function(j){
+  var jy=((j.y-T*j.v*j.z*(RM?0:1))%1+1)%1,cx=j.x*W+Math.sin(T*.0004+j.p)*40*j.z,cy=jy*(Hh+300)-100,ph=T*.0016+j.p,pu=RM?0:Math.sin(ph),
+  b=(20+42*j.z)*j.s*(1+.06*pu),h=b*(.78-.12*pu),al=ja*(.35+.65*j.z)*(.55+.4*Math.min(1,depth/4000)),k,m;
+  x.filter=j.z<.5?'blur(1.5px)':'none';
+  var gl=x.createRadialGradient(cx,cy-h*.3,0,cx,cy-h*.3,b*3);gl.addColorStop(0,'rgba(70,190,220,'+al*.28+')');gl.addColorStop(1,'rgba(70,190,220,0)');x.fillStyle=gl;x.fillRect(cx-b*3,cy-b*3.3,b*6,b*6);
+  for(k=0;k<16;k++){var u=k/15-.5,tx=cx+u*b*1.7,len=b*(3.4+((k*7)%5)*.5)*(1+.1*pu),tg=x.createLinearGradient(0,cy,0,cy+len);tg.addColorStop(0,'rgba(150,230,240,'+al*.45+')');tg.addColorStop(1,'rgba(150,230,240,0)');
+   x.strokeStyle=tg;x.lineWidth=k%4?.8:1.6;x.beginPath();x.moveTo(tx,cy);for(m=1;m<=10;m++){var f=m/10;x.lineTo(tx+Math.sin(ph*.7-f*4+k)*b*.18*f+u*b*.2*f,cy+len*f)}x.stroke()}
+  for(k=0;k<4;k++){var ox=cx+(k-1.5)*b*.28,og=x.createLinearGradient(0,cy,0,cy+b*2.2);og.addColorStop(0,'rgba(190,245,250,'+al*.55+')');og.addColorStop(1,'rgba(190,245,250,0)');x.strokeStyle=og;x.lineWidth=3.5;x.beginPath();x.moveTo(ox,cy-h*.1);for(m=1;m<=8;m++){x.lineTo(ox+Math.sin(ph*.8-m*.8+k*1.7)*b*.14,cy+b*2.2*m/8)}x.stroke()}
+  x.beginPath();x.moveTo(cx-b,cy);x.bezierCurveTo(cx-b*1.05,cy-h*1.55,cx+b*1.05,cy-h*1.55,cx+b,cy);x.quadraticCurveTo(cx+b*.5,cy+b*.18,cx,cy+b*.1);x.quadraticCurveTo(cx-b*.5,cy+b*.18,cx-b,cy);x.closePath();
+  var bg=x.createRadialGradient(cx,cy-h*.55,b*.05,cx,cy-h*.3,b*1.15);bg.addColorStop(0,'rgba(210,250,255,'+al*.55+')');bg.addColorStop(.55,'rgba(80,190,220,'+al*.22+')');bg.addColorStop(1,'rgba(40,130,180,'+al*.08+')');x.fillStyle=bg;x.fill();
+  x.strokeStyle='rgba(170,235,250,'+al*.45+')';x.lineWidth=1.2;x.stroke();
+  for(k=0;k<4;k++){var a2=k*1.57+.78,gx=cx+Math.cos(a2)*b*.3,gy=cy-h*.45+Math.sin(a2)*h*.12,gg=x.createRadialGradient(gx,gy,0,gx,gy,b*.3);gg.addColorStop(0,'rgba(140,255,240,'+al*.5+')');gg.addColorStop(1,'rgba(140,255,240,0)');x.fillStyle=gg;x.fillRect(gx-b*.3,gy-b*.3,b*.6,b*.6)}
+ });x.filter='none';x.restore()}
+ /* vessels: surface ship, lit ROV, distant wreck */
+ var vs=mob?.55:1,sm=function(a,b,v){return Math.max(0,Math.min(1,(v-a)/(b-a)))};
+ if(depth<320){var sx=W*(((T*.000014+.15)%1.5)-.25),sy=46-depth*.35;
+  x.save();x.globalAlpha=1-sm(120,320,depth);x.fillStyle='rgba(3,16,26,.9)';x.beginPath();x.moveTo(sx-170*vs,sy);x.lineTo(sx+190*vs,sy);x.lineTo(sx+150*vs,sy+34*vs);x.lineTo(sx-120*vs,sy+34*vs);x.closePath();x.fill();
+  x.fillStyle='rgba(220,250,255,.5)';for(i=0;i<16;i++){var bt=(T*.0006+i*.37)%1;x.beginPath();x.arc(sx-150*vs-bt*90*vs+Math.sin(i*5+T*.003)*6,sy+22*vs+bt*60,1+bt*1.6,0,6.28);x.fill()}x.restore()}
+ var ua=sm(800,1400,depth)*(1-sm(3800,4400,depth));
+ if(ua>0){x.save();x.translate(W*(1.15-((T*.000016+.3)%1.5)),Hh*.5+Math.sin(T*.0004)*18);x.scale(vs,vs);x.globalAlpha=ua;
+  var lg=x.createLinearGradient(-30,0,-420,0);lg.addColorStop(0,'rgba(190,240,255,.28)');lg.addColorStop(1,'rgba(190,240,255,0)');x.fillStyle=lg;x.beginPath();x.moveTo(-30,-4);x.lineTo(-420,-120);x.lineTo(-420,110);x.lineTo(-30,6);x.fill();
+  x.fillStyle='rgba(6,22,34,.95)';x.strokeStyle='rgba(89,201,216,.35)';x.lineWidth=1;x.beginPath();x.ellipse(0,0,64,24,0,0,6.28);x.fill();x.stroke();x.fillRect(-10,-36,30,14);x.strokeRect(-10,-36,30,14);x.fillRect(58,-4,14,8);
+  x.beginPath();x.arc(-40,-2,7,0,6.28);x.fillStyle='rgba(190,240,255,.9)';x.fill();x.restore()}
+ var wa=sm(2400,3200,depth)*(1-sm(5600,6600,depth));
+ if(wa>0){x.save();x.translate(W*(mob?.5:.66),Hh*(1.15-sm(2400,5600,depth)*.6));x.rotate(-.1);x.scale(vs,vs);x.globalAlpha=wa*.85;x.fillStyle='#01070c';x.strokeStyle='rgba(89,201,216,.22)';x.lineWidth=1.2;
+  x.beginPath();x.moveTo(-280,20);x.lineTo(-250,-30);x.lineTo(200,-30);x.lineTo(320,-95);x.lineTo(335,-40);x.lineTo(260,40);x.lineTo(-240,40);x.closePath();x.fill();x.stroke();
+  x.fillRect(-150,-62,90,32);x.strokeRect(-150,-62,90,32);x.fillRect(-40,-86,18,56);x.strokeRect(-40,-86,18,56);
+  x.beginPath();x.moveTo(120,-30);x.lineTo(110,-130);x.moveTo(110,-110);x.lineTo(60,-30);x.stroke();
+  x.fillStyle='rgba(120,230,240,.5)';for(i=0;i<6;i++)x.fillRect(-200+i*60,-8,3,3);x.restore()}
+ /* vignette deepens with depth */
+ var v=x.createRadialGradient(W/2,Hh/2,Hh*.3,W/2,Hh/2,Hh*.95),va=.25+Math.min(.5,depth/6000*.6);v.addColorStop(0,'rgba(1,5,9,0)');v.addColorStop(1,'rgba(1,5,9,'+va+')');x.fillStyle=v;x.fillRect(0,0,W,Hh);
+ ui();requestAnimationFrame(frame)}
+addEventListener('scroll',calc,{passive:true});calc();depth=tgt;requestAnimationFrame(frame);
+document.addEventListener('visibilitychange',function(){last=performance.now()});
+
+/* optional ambient sound — generated, no autoplay */
+var ac,mg,on=false,btn=$('snd');
+function build(){var AC=window.AudioContext||window.webkitAudioContext;if(!AC)return false;ac=new AC();mg=ac.createGain();mg.gain.value=0;
+ var n=ac.sampleRate*4,buf=ac.createBuffer(1,n,ac.sampleRate),d=buf.getChannelData(0),l=0;for(var i=0;i<n;i++){var w=Math.random()*2-1;l=(l+.02*w)/1.02;d[i]=l*3.5}
+ var s=ac.createBufferSource();s.buffer=buf;s.loop=true;var f=ac.createBiquadFilter();f.type='lowpass';f.frequency.value=280;var o=ac.createOscillator();o.frequency.value=.07;var og=ac.createGain();og.gain.value=90;o.connect(og);og.connect(f.frequency);
+ s.connect(f);f.connect(mg);mg.connect(ac.destination);s.start();o.start();return true}
+btn.onclick=function(){try{if(!ac&&!build()){btn.textContent='SOUND N/A';btn.disabled=true;return}
+ on=!on;if(on&&ac.state==='suspended')ac.resume();var t=ac.currentTime;mg.gain.cancelScheduledValues(t);mg.gain.setValueAtTime(mg.gain.value,t);mg.gain.linearRampToValueAtTime(on?.55:0,t+(on?2.5:1.2));
+ btn.setAttribute('aria-pressed',on);btn.textContent=on?'SOUND ON':'SOUND OFF'}catch(e){btn.textContent='SOUND N/A';btn.disabled=true}};
+addEventListener('pagehide',function(){if(ac&&ac.state!=='closed')ac.close()});
+})();
+</script></body></html>
